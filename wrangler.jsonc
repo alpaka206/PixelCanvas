@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "openpixel-beta",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-04-20",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  },
+  "vars": {
+    "APP_NAME": "OpenPixel Beta",
+    "BOARD_WIDTH": "128",
+    "BOARD_HEIGHT": "128",
+    "PLACEMENT_COOLDOWN_MS": "20000",
+    "VERIFICATION_TTL_MS": "21600000",
+    "RECENT_PLACEMENTS_LIMIT": "24"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "BOARD_ROOM",
+        "class_name": "BoardRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1_board_room",
+      "new_sqlite_classes": ["BoardRoom"]
+    }
+  ]
+}

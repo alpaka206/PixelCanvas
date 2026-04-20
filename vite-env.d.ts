@@ -1,10 +1,27 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_GOOGLE_CLIENT_ID: string;
-  // 다른 환경 변수를 여기 추가하세요.
+  readonly VITE_APP_TITLE?: string
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv;
+  readonly env: ImportMetaEnv
+}
+
+interface TurnstileRenderOptions {
+  callback?: (token: string) => void
+  'error-callback'?: () => void
+  'expired-callback'?: () => void
+  sitekey: string
+  theme?: 'auto' | 'dark' | 'light'
+}
+
+interface TurnstileApi {
+  remove?: (widgetId: string) => void
+  render: (container: HTMLElement | string, options: TurnstileRenderOptions) => string
+  reset: (widgetId?: string) => void
+}
+
+interface Window {
+  turnstile?: TurnstileApi
 }

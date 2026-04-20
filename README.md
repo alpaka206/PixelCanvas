@@ -1,50 +1,92 @@
-# React + TypeScript + Vite
+# OpenPixel Beta
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Public beta MVP for a collaborative `r/place`-style board built as a single Cloudflare Workers project.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React + Vite for the client
+- Cloudflare Vite plugin for local dev and builds
+- Cloudflare Worker for API routes
+- Durable Object with SQLite-backed storage for the board state and WebSocket fanout
+- Cloudflare Turnstile for optional public-beta abuse control
 
-## Expanding the ESLint configuration
+## What this version includes
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- One shared board
+- Free color picking with a native color input
+- Real-time pixel updates over WebSockets
+- Persistent board state inside a Durable Object
+- Session cooldown enforcement
+- Turnstile verification flow for public beta usage
+- No separate backend repository
 
-- Configure the top-level `parserOptions` property like this:
+## Local development
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Install dependencies:
+
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+2. Add local secrets for Turnstile if you want the full public-beta flow.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Create a `.dev.vars` file in the project root:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+TURNSTILE_SITE_KEY=your_site_key
+TURNSTILE_SECRET=your_secret
+COOKIE_SECRET=your_random_cookie_secret
 ```
+
+If `TURNSTILE_SITE_KEY` or `TURNSTILE_SECRET` is missing, the app falls back to development mode and skips the CAPTCHA requirement.
+
+3. Start the app:
+
+```bash
+npm run dev
+```
+
+## Build and preview
+
+```bash
+npm run build
+npm run preview
+```
+
+## Deploy
+
+1. Log in to Cloudflare:
+
+```bash
+npx wrangler login
+```
+
+2. Add production secrets:
+
+```bash
+npx wrangler secret put TURNSTILE_SITE_KEY
+npx wrangler secret put TURNSTILE_SECRET
+npx wrangler secret put COOKIE_SECRET
+```
+
+3. Deploy:
+
+```bash
+npm run cf:deploy
+```
+
+## Config knobs
+
+The core board settings live in `wrangler.jsonc`:
+
+- `BOARD_WIDTH`
+- `BOARD_HEIGHT`
+- `PLACEMENT_COOLDOWN_MS`
+- `VERIFICATION_TTL_MS`
+- `RECENT_PLACEMENTS_LIMIT`
+
+## Notes for public beta
+
+- This is intentionally a single-board MVP.
+- Cooldown and Turnstile are designed to reduce abuse, not eliminate all attacks.
+- If traffic outgrows the free tier, the first pressure points will be Worker requests and Durable Object usage.
